@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Button, Card, Col, Form, Modal, Spinner } from 'react-bootstrap';
 import { FaHeart, FaCartPlus } from "react-icons/fa";
 import image from '../../assets/pro12.png';
-import { useAddToCartMutation, useAddToFavMutation, useRemoveFromCartMutation } from '../../redux/feature/api/categories/categoriesApi';
+import { useAddToCartMutation, useAddToFavMutation, useRemoveFromCartMutation } from '../../redux/feature/api/Api';
 import Cookies from 'universal-cookie';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -26,9 +26,9 @@ const Medicine = ({ medicine }) => {
   const [show, setShow] = useState(false);
 
   const [form, setForm] = useState({
-    medicineId: medicine?._id,
-    quantity: '',
-    price: ''
+    productId: medicine?._id,
+    quantity: 8,
+    pharmacyId: '67ee61f05664d04d43b80b40'
   });
 
   const handleInputChange = useCallback((field, value) => {
@@ -55,7 +55,7 @@ const Medicine = ({ medicine }) => {
   const addToCartHandler = () => {
     if (!isInCart) {
       setLoadingCart(true);
-      addToCart(medicine?._id)
+      addToCart(form)
         .unwrap()
         .then(() => {
           setIsInCart(true);
@@ -102,13 +102,13 @@ const Medicine = ({ medicine }) => {
   return (
    
   
-     <>
+    
        <Card className='card-pro me-1'  >
+        <div>
         <Link to={`/products/products/${medicine?._id}`}>
           <Card.Img variant='top' src={image} className='img-pro' />
         </Link>
-        <div className='px-2'>
-          <div className='icon-container'>
+        <div className='icon-container'>
             <i className='icon-card-heart' onClick={addToFavourite}>
               {loadingFav ? <Spinner animation="border" size="sm" /> : <FaHeart color={isFavorited ? 'red' : 'gray'} />}
             </i>
@@ -116,12 +116,15 @@ const Medicine = ({ medicine }) => {
               {loadingCart ? <Spinner animation="border" size="sm" /> : <FaCartPlus color={isInCart ? 'green' : 'gray'} />}
             </i>
           </div>
+        </div>
+       
+        <div className='px-2'>
+         
           <h5 className='text-danger fs-5'>{medicine?.name}</h5>
           <Card.Text>
             {medicine?.description?.length <= 44 ? medicine?.description : `${medicine?.description?.slice(0, 45)}...`}
           </Card.Text>
-        </div>
-        <Fade
+          <Fade
           className="w-100 text-center"
           delay={0}
           direction="up"
@@ -131,14 +134,17 @@ const Medicine = ({ medicine }) => {
         <div className="d-flex justify-content-between align-items-center px-2 mb-2 mt-auto">
           <p className='price'>${medicine?.price}</p>
         </div>
-        </Fade>
 
+        </Fade>
+        </div>
+        
         {userType === 'pharmacist' && (
           <button onClick={handleShow} className='btn btn-outline-dark mx-2 mb-1'>Add to My Pharmacy</button>
         )}
-      </Card>
 
-      <Modal centered show={show} onHide={handleClose}>
+        
+        {/* Modal to pharmacy */}
+        <Modal centered show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Add Medicine to Pharmacy</Modal.Title>
         </Modal.Header>
@@ -165,11 +171,14 @@ const Medicine = ({ medicine }) => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <button variant="secondary"   onClick={handleClose} style={{width:'80px'}}>Close</button>
+          <Button variant="secondary" onClick={handleClose} style={{width:'80px'}}>Close</Button>
           <button  className='btn-submit' onClick={addToPharmacy} style={{width:'80px'}}>Save</button>
         </Modal.Footer>
       </Modal>
-     </>
+      </Card>
+
+      
+     
     
   );
 };
